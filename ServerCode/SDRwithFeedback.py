@@ -1,10 +1,11 @@
-import numpy as np
 import uhd
 from uhd import libpyuhd as lib
 import json
 import time
 import threading
 import os
+import numpy as np
+
 
 waveforms = {
     "sine": lambda n, tone_offset, rate: np.exp(n * 2j * np.pi * tone_offset / rate),
@@ -18,20 +19,27 @@ def streamWaveform(streamer, wave, metadata):
         streamer.send(wave, metadata)
 
 
-def generateWaveform(data):
-    freqs = []
-    phases = []
-    amplitude = []
-    for item in data['Waves']:
-        freqs.append(item['freq'])
-        phases.append(item['phase'])
-        amplitude.append(item['amplitude'])
-    dataSize = int(np.floor(10 * data["Rate"] / data['waveFreq']))
-    wave = np.array(list(map(lambda n: 0, np.arange(dataSize, dtype=np.complex64))), dtype=np.complex64)
-    for i in range(len(data['Waves'])):
-        currentWave = np.array(list(map(lambda n: amplitude[i] * waveforms['sine'](n, freqs[i], data["Rate"]), np.arange(dataSize, dtype=np.complex64))), dtype=np.complex64)
-        wave = np.add(wave, np.exp(phases[i]*np.pi*2j) * currentWave)
-    return wave
+def generateOutputWaveform(allWaves, jsonData):
+    waves = []
+    for channel in range(len(jsonData['Channels'])):
+        wave = allWaves[0][0]*0
+        for wave in jsonData['Waves'][channel]:
+                wave = np.add(wave, wave['amplitude']*allWaves[i]*np.exp(wave['phase']*np.pi*2j))
+        waves.append(wave)
+    outputWave = waves[0]
+    if len(waves) == 2:
+        outputWave = np.stack((waves[0], waves[1]), axis=0)
+    return outputWave
+
+
+def generateWaveforms(jsonData):
+    dataSize = int(np.floor(jsonData["Rate"] / jsonData['waveFreq']))
+    outputWaveform = []
+    for channel in range(len(jsonData['Channels'])):
+        for wave in jsonData['Waves'][channel]:
+            wave = np.array(list(map(lambda n: waveforms['sine'](n, wave['freq'], jsonData["Rate"]), np.arange(dataSize, dtype=np.complex64))), dtype=np.complex64)
+            outputWaveform.append(wave)
+    return outputWaveform
 
 
 def main():
@@ -47,8 +55,8 @@ def main():
 ############# Generate Waveforms ##############
 ###############################################
 
-    wave = generateWaveform(data)
-
+    allWaves = generateWaveforms(data)
+    wave = generateOutputWaveform(allWaves, data)
 ###############################################
 ############## Initialize USRP ################
 ##############################################
@@ -60,8 +68,8 @@ def main():
         usrp.set_tx_gain(gain, chan)
     st_args = lib.usrp.stream_args("fc32", "sc16")
     st_args.channels = channels
-
     streamer = usrp.get_tx_stream(st_args)
+
     buffer_samps = streamer.get_max_num_samps()
 
     metadata = lib.types.tx_metadata()
@@ -76,11 +84,13 @@ def main():
         time.sleep(.05)
         modTime = os.stat('waveformArguments.json').st_mtime
         if modTime != modTimeOrig:
+            print "changed"
             try:
                 with open('waveformArguments.json') as read_file:
                     data = json.load(read_file)
                 read_file.close()
-                stream.wave = generateWaveform(data)
+                newWave = generateOutputWaveform(allWaves, data)
+                stream.wave = np.stack((newWave, newWave), axis=0)
                 stream.isAlive()
                 modTimeOrig = modTime
             except:
