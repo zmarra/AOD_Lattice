@@ -50,8 +50,8 @@ while(maxAmp*2 > ampThreshold):
     for chan in range(len(data['Channels'])):
         data['Waves'].append([])
     for freq in freqs:
+        newPhase = random.random()
         for chan in range(len(data['Channels'])):
-            newPhase = random.random()
             data['Waves'][int(chan)].append({"freq": freq, "amplitude": .5, "phase": newPhase})
 
     freqs = []

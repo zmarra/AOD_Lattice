@@ -23,8 +23,10 @@ def generateOutputWaveform(allWaves, jsonData):
     waves = []
     for channel in range(len(jsonData['Channels'])):
         wave = allWaves[0][0]*0
-        for wave in jsonData['Waves'][channel]:
-                wave = np.add(wave, wave['amplitude']*allWaves[i]*np.exp(wave['phase']*np.pi*2j))
+        i = 0
+        for currentWave in jsonData['Waves'][channel]:
+                wave = np.add(wave, currentWave['amplitude']*allWaves[i]*np.exp(currentWave['phase']*np.pi*2j))
+                i += 1
         waves.append(wave)
     outputWave = waves[0]
     if len(waves) == 2:
@@ -36,8 +38,8 @@ def generateWaveforms(jsonData):
     dataSize = int(np.floor(jsonData["Rate"] / jsonData['waveFreq']))
     outputWaveform = []
     for channel in range(len(jsonData['Channels'])):
-        for wave in jsonData['Waves'][channel]:
-            wave = np.array(list(map(lambda n: waveforms['sine'](n, wave['freq'], jsonData["Rate"]), np.arange(dataSize, dtype=np.complex64))), dtype=np.complex64)
+        for currentWave in jsonData['Waves'][channel]:
+            wave = np.array(list(map(lambda n: waveforms['sine'](n, currentWave['freq'], jsonData["Rate"]), np.arange(dataSize, dtype=np.complex64))), dtype=np.complex64)
             outputWaveform.append(wave)
     return outputWaveform
 
