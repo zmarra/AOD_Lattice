@@ -25,15 +25,15 @@ def func(x, *params):
     return y
 
 
-def updateAmplitudes(pids, amplitudes):
-    with open('waveformArguments.json') as read_file:
+def updateAmplitudes(pids, amplitudes, waveformFile):
+    with open(waveformFile) as read_file:
         data = json.load(read_file)
     read_file.close()
     for i in range(len(pids)):
         control = pids[i](amplitudes[i])
         data["Waves"][i]["amplitude"] = control
         print str(amplitudes[i]) + " " + str(control)
-    with open('waveformArguments.json', 'w') as outfile:
+    with open(waveformFile, 'w') as outfile:
         json.dump(data, outfile, indent=4, separators=(',', ': '))
     outfile.close()
     return "done"
@@ -47,14 +47,14 @@ def parse_args():
     parser.add_argument("-P", "--P", default=.00005, type=float)
     parser.add_argument("-I", "--I", default=0.00002, type=float)
     parser.add_argument("-D", "--D", default=0.000001, type=float)
-    parser.add_argument("-f", "--waveformFile", default='../Resources/waveformArguments.json', type=str)
+    parser.add_argument("-f", "--waveformFile", default='Resources/waveformArguments.json', type=str)
     parser.add_argument("-c", "--cameraImageURL", default="http://10.141.230.220/html/cam_pic.php", type=str)
     parser.add_argument("-p", "--peakProminence", default=400, type=int)
     return parser.parse_args()
 
 
 args = parse_args()
-trapNum = args.traps
+trapNum = int(args.traps)
 pids = []
 with open(args.waveformFile) as read_file:
     data = json.load(read_file)
@@ -71,5 +71,5 @@ while True:
     summedFunction = np.sum(grayimg, axis=0)
     peaks, properties = find_peaks(summedFunction, prominence=(args.peakProminence, None))
     amplitudes = summedFunction[peaks]
-    updateAmplitudes(pids, amplitudes)
+    updateAmplitudes(pids, amplitudes, args.waveformFile)
     time.sleep(.05)
