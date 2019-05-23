@@ -7,6 +7,8 @@ import json
 import time
 from scipy.signal import find_peaks
 import argparse
+import math
+
 
 def rgb2gray(rgb):
     r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
@@ -30,9 +32,9 @@ def updateAmplitudes(pids, amplitudes, waveformFile):
         data = json.load(read_file)
     read_file.close()
     for i in range(len(pids)):
-        control = pids[i](amplitudes[i])
+        control = pids[i](10*math.log10(amplitudes[i]))
         for chan in range(len(data["Channels"])):
-            data["Waves"][chan][i]["amplitude"] = control
+            data["Waves"][chan][i]["amplitude"] = 10.0**(control/10.0)
         print str(amplitudes[i]) + " " + str(control)
     with open(waveformFile, 'w') as outfile:
         json.dump(data, outfile, indent=4, separators=(',', ': '))
@@ -61,7 +63,7 @@ with open(args.waveformFile) as read_file:
     data = json.load(read_file)
 read_file.close()
 for i in range(trapNum):
-    pids += [PID(args.P, args.I, args.D, setpoint=1000, output_limits=(0.01, 2))]
+    pids += [PID(args.P, args.I, args.D, setpoint=1000, output_limits=(-40, 0))]
     print data["Waves"][0][i]["amplitude"]
     pids[i].auto_mode = False
     pids[i].set_auto_mode(True, last_output=data["Waves"][0][i]["amplitude"])
