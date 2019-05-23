@@ -43,7 +43,7 @@ guess = [200]
 pids = []
 for i in range(15):
     guess += [14+16*i, 1000, 1]
-left = 90
+left = 80
 right = 338
 top = 100
 bottom = 110
@@ -56,7 +56,7 @@ while True:
     x = range(right-left)
     plt.clf()
     summedFunction = np.sum(grayimg, axis=0)
-    peaks, properties = find_peaks(summedFunction, prominence=(400, None))
+    peaks, properties = find_peaks(summedFunction, prominence=(200, None))
     print len(peaks)
     plt.plot(x, summedFunction)
     plt.plot(peaks, summedFunction[peaks], "x")

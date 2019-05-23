@@ -64,7 +64,7 @@ for i in range(trapNum):
     pids += [PID(args.P, args.I, args.D, setpoint=1000, output_limits=(0.01, 2))]
     print data["Waves"][0][i]["amplitude"]
     pids[i].auto_mode = False
-    pids[i].set_auto_mode(True, last_output=data["Waves"][i]["amplitude"])
+    pids[i].set_auto_mode(True, last_output=data["Waves"][0][i]["amplitude"])
 while True:
     response = requests.get(args.cameraImageURL)
     img = (Image.open(BytesIO(response.content))).crop(args.window)
