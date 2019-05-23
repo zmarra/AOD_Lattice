@@ -63,7 +63,7 @@ with open(args.waveformFile) as read_file:
     data = json.load(read_file)
 read_file.close()
 for i in range(trapNum):
-    pids += [PID(args.P, args.I, args.D, setpoint=1000, output_limits=(-40, 0))]
+    pids += [PID(args.P, args.I, args.D, setpoint=1000, output_limits=(-10, 0))]
     print data["Waves"][0][i]["amplitude"]
     pids[i].auto_mode = False
     pids[i].set_auto_mode(True, last_output=data["Waves"][0][i]["amplitude"])
