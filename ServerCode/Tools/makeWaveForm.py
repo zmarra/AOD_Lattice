@@ -2,7 +2,9 @@ import argparse
 import json
 import numpy as np
 import random
+import os
 
+os.chdir("/")
 
 waveforms = {
     "sine": lambda n, tone_offset, rate: np.exp(n * 2j * np.pi * tone_offset / rate)

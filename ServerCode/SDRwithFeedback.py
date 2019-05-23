@@ -45,7 +45,8 @@ def generateWaveforms(jsonData):
 
 
 def main():
-    with open('waveformArguments.json') as read_file:
+    waveformFile = 'Resources/waveformArguments.json'
+    with open(waveformFile) as read_file:
         data = json.load(read_file)
     read_file.close()
     rate = data['Rate']
@@ -79,16 +80,16 @@ def main():
 ###############################################
 ############## Stream Waveforms ###############
 ###############################################
-    modTimeOrig = os.stat('waveformArguments.json').st_mtime
+    modTimeOrig = os.stat(waveformFile).st_mtime
     stream = threading.Thread(target=streamWaveform, args=(streamer, wave, metadata))
     stream.start()
     while True:
         time.sleep(.05)
-        modTime = os.stat('waveformArguments.json').st_mtime
+        modTime = os.stat(waveformFile).st_mtime
         if modTime != modTimeOrig:
             print "changed"
             try:
-                with open('waveformArguments.json') as read_file:
+                with open(waveformFile) as read_file:
                     data = json.load(read_file)
                 read_file.close()
                 newWave = generateOutputWaveform(allWaves, data)
