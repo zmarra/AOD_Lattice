@@ -31,7 +31,8 @@ def updateAmplitudes(pids, amplitudes, waveformFile):
     read_file.close()
     for i in range(len(pids)):
         control = pids[i](amplitudes[i])
-        data["Waves"][i]["amplitude"] = control
+        for chan in range(len(data["Channels"])):
+            data["Waves"][chan][i]["amplitude"] = control
         print str(amplitudes[i]) + " " + str(control)
     with open(waveformFile, 'w') as outfile:
         json.dump(data, outfile, indent=4, separators=(',', ': '))
@@ -61,7 +62,7 @@ with open(args.waveformFile) as read_file:
 read_file.close()
 for i in range(trapNum):
     pids += [PID(args.P, args.I, args.D, setpoint=1000, output_limits=(0.01, 2))]
-    print data["Waves"][i]["amplitude"]
+    print data["Waves"][0][i]["amplitude"]
     pids[i].auto_mode = False
     pids[i].set_auto_mode(True, last_output=data["Waves"][i]["amplitude"])
 while True:

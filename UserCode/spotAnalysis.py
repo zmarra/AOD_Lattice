@@ -43,8 +43,8 @@ guess = [200]
 pids = []
 for i in range(15):
     guess += [14+16*i, 1000, 1]
-left = 98
-right = 324
+left = 90
+right = 338
 top = 100
 bottom = 110
 while True:
