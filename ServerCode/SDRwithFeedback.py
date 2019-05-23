@@ -93,7 +93,7 @@ def main():
                     data = json.load(read_file)
                 read_file.close()
                 newWave = generateOutputWaveform(allWaves, data)
-                stream.wave = np.stack((newWave, newWave), axis=0)
+                stream.wave = newWave
                 stream.isAlive()
                 modTimeOrig = modTime
             except:
