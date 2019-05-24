@@ -39,11 +39,7 @@ def updateAmplitudes(pids, amplitudes):
     return "done"
 
 
-guess = [200]
-pids = []
-for i in range(15):
-    guess += [14+16*i, 1000, 1]
-left = 80
+left = 90
 right = 338
 top = 100
 bottom = 110
@@ -65,6 +61,6 @@ while True:
     #print popt[3::3]
     #fit = func(x, *popt)
     #plt.plot(x, fit
-    plt.ylim(0, 1000)
+    plt.ylim(0, 2000)
     plt.pause(.05)
 plt.show()
