@@ -8,7 +8,6 @@ def streamWaveform(streamer, metadata, wave):
     while getattr(t, "run", True):
         streamingWave = getattr(t, "wave", wave)
         streamer.send(streamingWave, metadata)
-    return "SDR killed"
 
 
 class SoftwareDefinedRadio(object):
