@@ -25,14 +25,19 @@ class SoftwareDefinedRadio(object):
             self.streamer = usrp.get_tx_stream(st_args)
             self.buffer_samps = self.streamer.get_max_num_samps()
             self.metadata = lib.types.tx_metadata()
-            self.wave = self.waveMan.generateOutputWaveform()
 
-        def streamWaveform(self):
+        def streamWaveform(self, wave):
             t = threading.currentThread()
             while getattr(t, "run", True):
-                streamingWave = getattr(t, "wave", self.wave)
+                streamingWave = getattr(t, "wave", wave)
                 self.streamer.send(streamingWave, self.metadata)
             return "SDR killed"
 
+        def startStreamingWaveform(self):
+            wave = self.waveMan.generateOutputWaveform()
+            self.stream = threading.Thread(target=self.streamWaveform, args=(wave))
+            self.stream.start()
+
         def updateWaveform(self):
-            self.wave = self.waveMan.generateOutputWaveform()
+            (self.stream).wave = self.waveMan.generateOutputWaveform()
+            self.stream.isAlive()
