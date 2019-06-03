@@ -3,7 +3,7 @@ from uhd import libpyuhd as lib
 import threading
 
 
-def streamWaveform(streamer, metadata, wave):
+def streamWaveform(streamer, wave, metadata):
     t = threading.currentThread()
     while getattr(t, "run", True):
         streamingWave = getattr(t, "wave", wave)
@@ -35,7 +35,7 @@ class SoftwareDefinedRadio(object):
 
         def startStreamingWaveform(self):
             wave = self.waveMan.generateOutputWaveform()
-            self.stream = threading.Thread(target=streamWaveform, args=(self.streamer, self.metadata, wave))
+            self.stream = threading.Thread(target=streamWaveform, args=(self.streamer, wave, self.metadata))
             self.stream.start()
 
         def updateWaveform(self):
