@@ -9,7 +9,7 @@ waveMan.makeLatticeWaveform(5, 7e5, "Resources/waveformTemplate.json")
 
 SDR = SoftwareDefinedRadio.SoftwareDefinedRadio(waveMan)
 SDR.initializeSDR()
-SDR.streamWaveform()
+SDR.startStreamingWaveform()
 while(True):
     if waveMan.getUpdateStatus():
         SDR.updateWaveform()
