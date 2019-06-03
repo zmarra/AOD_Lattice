@@ -3,6 +3,14 @@ from uhd import libpyuhd as lib
 import threading
 
 
+def streamWaveform(streamer, metadata, wave):
+    t = threading.currentThread()
+    while getattr(t, "run", True):
+        streamingWave = getattr(t, "wave", wave)
+        streamer.send(streamingWave, metadata)
+    return "SDR killed"
+
+
 class SoftwareDefinedRadio(object):
 
         def __init__(self, waveMan):
@@ -26,16 +34,9 @@ class SoftwareDefinedRadio(object):
             self.buffer_samps = self.streamer.get_max_num_samps()
             self.metadata = lib.types.tx_metadata()
 
-        def streamWaveform(self, wave):
-            t = threading.currentThread()
-            while getattr(t, "run", True):
-                streamingWave = getattr(t, "wave", wave)
-                self.streamer.send(streamingWave, self.metadata)
-            return "SDR killed"
-
         def startStreamingWaveform(self):
             wave = self.waveMan.generateOutputWaveform()
-            self.stream = threading.Thread(target=self.streamWaveform, args=(wave))
+            self.stream = threading.Thread(target=streamWaveform, args=(self.streamer, self.metadata, wave))
             self.stream.start()
 
         def updateWaveform(self):
