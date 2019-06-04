@@ -1,10 +1,8 @@
-import sys
 import uhd
 from uhd import libpyuhd as lib
 import threading
-sys.path.insert(0, 'Tools/')
-import WaveformManager
-import SoftwareDefinedRadio
+from Tools.WaveformManager import WaveformManager
+from Tools.SoftwareDefinedRadio import SoftwareDefinedRadio
 
 
 def streamWaveform(streamer, wave, metadata):
@@ -14,7 +12,7 @@ def streamWaveform(streamer, wave, metadata):
         streamer.send(streamingWave, metadata)
 
 
-waveMan = WaveformManager.WaveformManager("Resources/waveformArguments.json")
+waveMan = WaveformManager("Resources/waveformArguments.json")
 waveMan.makeLatticeWaveform(5, 7e5, "Resources/waveformTemplate.json")
 
 jsonData = waveMan.getJsonData()
@@ -40,5 +38,5 @@ stream = threading.Thread(target=streamWaveform, args=(streamer, wave, metadata)
 stream.start()
 
 while(True):
-    if waveMan.getUpdateStatus():
+    if waveMan.isChanged():
         stream.wave = waveMan.generateOutputWaveform()

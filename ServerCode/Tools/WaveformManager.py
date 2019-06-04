@@ -58,6 +58,18 @@ class WaveformManager(object):
         wave = self.getWaveform(channel)
         return np.max(np.real(wave), axis=0) - np.min(np.real(wave), axis=0)
 
+    def getAmplitudes(self, channel):
+        amplitudes = []
+        for wave in self.jsonData['Waves'][channel]:
+            amplitudes.append(wave['amplitude'])
+        return amplitudes
+
+    def getPhases(self, channel):
+        phases = []
+        for wave in self.jsonData['Waves'][channel]:
+            phases.append(wave['phase'])
+        return phases
+
     def changeAmplitude(self, channel, amplitudes):
         i = 0
         for wave in self.jsonData['Waves'][channel]:
@@ -72,10 +84,13 @@ class WaveformManager(object):
             i += 1
         return True
 
-    def getUpdateStatus(self):
+    def isChanged(self):
         oldModTime = self.modTime
         self.modTime = os.stat(self.waveformFile).st_mtime
-        return self.modTime != oldModTime
+        if self.modTime != oldModTime:
+            self.jsonData = self.getJsonData()
+            return True
+        return False
 
     def getWaveform(self, channel):
         wave = self.allWaves[0][0]*0
@@ -106,3 +121,5 @@ class WaveformManager(object):
         freqsList = [freqs, freqs]
         print freqsList
         self.makeWaveform(freqsList, templateFile)
+        self.changeAmplitude(1, self.getAmplitudes(0))
+        self.changePhases(1, self.getPhases(0))
