@@ -2,10 +2,24 @@ import json
 import numpy as np
 import random
 import os
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+import time
 
 waveforms = {
     "sine": lambda n, tone_offset, rate: np.exp(n * 2j * np.pi * tone_offset / rate)
 }
+
+
+class EventHandler(FileSystemEventHandler):
+    def __init__(self, streamingThread, waveMan):
+        super(EventHandler, self).__init__()
+        self.streamingThread = streamingThread
+        self.waveMan = waveMan
+
+    def on_any_event(self, event):
+        if self.waveMan.isChanged():
+            self.streamingThread.wave = self.waveMan.generateOutputWaveform()
 
 
 class WaveformManager(object):
@@ -123,3 +137,16 @@ class WaveformManager(object):
         self.makeWaveform(freqsList, templateFile)
         self.changeAmplitude(1, self.getAmplitudes(0))
         self.changePhases(1, self.getPhases(0))
+
+    def fileMonitor(self, stream):
+        path = os.path.dirname(os.path.abspath(self.waveformFile))
+        event_handler = EventHandler(stream, self)
+        observer = Observer()
+        observer.schedule(event_handler, path)
+        observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
