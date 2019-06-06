@@ -35,10 +35,11 @@ class SoftwareDefinedRadio(object):
 
         def startStreamingWaveform(self):
             wave = self.waveMan.generateOutputWaveform()
-            streamer = self.streamer
-            metadata = self.metadata
-            self.stream = threading.Thread(target=streamWaveform, args=(streamer, wave, metadata))
+            self.stream = threading.Thread(target=streamWaveform, args=(self.streamer, wave, self.metadata))
             self.stream.start()
+
+        def startMonitor(self):
+            waveMan.fileMonitor(self.stream)
 
         def updateWaveform(self):
             (self.stream).wave = self.waveMan.generateOutputWaveform()
