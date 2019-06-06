@@ -3,6 +3,21 @@ from uhd import libpyuhd as lib
 import threading
 from Tools.WaveformManager import WaveformManager
 from Tools.SoftwareDefinedRadio import SoftwareDefinedRadio
+import time
+import os
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+
+class EventHandler(FileSystemEventHandler):
+    def __init__(self, streamingThread, waveMan):
+        super(EventHandler, self).__init__()
+        self.streamingThread = streamingThread
+        self.waveMan = waveMan
+
+    def on_any_event(self, event):
+        if self.waveMan.isChanged():
+            self.streamingThread.wave = self.waveMan.generateOutputWaveform()
 
 
 def streamWaveform(streamer, wave, metadata):
@@ -37,6 +52,15 @@ wave = waveMan.generateOutputWaveform()
 stream = threading.Thread(target=streamWaveform, args=(streamer, wave, metadata))
 stream.start()
 
-while(True):
-    if waveMan.isChanged():
-        stream.wave = waveMan.generateOutputWaveform()
+
+path = os.path.abspath("Resources")
+event_handler = EventHandler(stream, waveMan)
+observer = Observer()
+observer.schedule(event_handler, path)
+observer.start()
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    observer.stop()
+observer.join()
