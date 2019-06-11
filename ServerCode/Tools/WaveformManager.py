@@ -2,24 +2,10 @@ import json
 import numpy as np
 import random
 import os
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-import time
 
 waveforms = {
     "sine": lambda n, tone_offset, rate: np.exp(n * 2j * np.pi * tone_offset / rate)
 }
-
-
-class EventHandler(FileSystemEventHandler):
-    def __init__(self, streamingThread, waveMan):
-        super(EventHandler, self).__init__()
-        self.streamingThread = streamingThread
-        self.waveMan = waveMan
-
-    def on_any_event(self, event):
-        if self.waveMan.isChanged():
-            self.streamingThread.wave = self.waveMan.generateOutputWaveform()
 
 
 class WaveformManager(object):
@@ -43,19 +29,12 @@ class WaveformManager(object):
         return data
 
     def updateJsonData(self, jsonData):
-        with open(self.waveformFile, 'w') as outfile:
-            json.dump(jsonData, outfile, indent=4, separators=(',', ': '))
-        outfile.close()
         self.jsonData = self.getJsonData()
 
-    def initializeWaveforms(self):
-        dataSize = int(np.floor(self.jsonData["Rate"] / self.jsonData['waveFreq']))
-        self.allWaves = []
-        for channel in self.jsonData["Channels"]:
-            self.allWaves.append([])
-            for currentWave in self.jsonData['Waves'][channel]:
-                wave = np.array(list(map(lambda n: waveforms['sine'](n, currentWave['freq'], self.jsonData["Rate"]), np.arange(dataSize, dtype=np.complex64))), dtype=np.complex64)
-                (self.allWaves[channel]).append(wave)
+    def saveJsonData(self):
+        with open(self.waveformFile, 'w') as outfile:
+            json.dump(self.jsonData, outfile, indent=4, separators=(',', ': '))
+        outfile.close()
 
     def randomizePhases(self, channel):
         lines = len(self.jsonData['Waves'][channel])
@@ -98,14 +77,6 @@ class WaveformManager(object):
             i += 1
         return True
 
-    def isChanged(self):
-        oldModTime = self.modTime
-        self.modTime = os.stat(self.waveformFile).st_mtime
-        if self.modTime != oldModTime:
-            self.jsonData = self.getJsonData()
-            return True
-        return False
-
     def getWaveform(self, channel):
         wave = self.allWaves[0][0]*0
         i = 0
@@ -113,10 +84,6 @@ class WaveformManager(object):
                 wave = np.add(wave, currentWave['amplitude']*self.allWaves[channel][i]*np.exp(currentWave['phase']*np.pi*2j))
                 i += 1
         return wave
-
-    def generateOutputWaveform(self):
-        outputWave = np.stack((self.getWaveform(0), self.getWaveform(1)), axis=0)
-        return outputWave
 
     def makeWaveform(self, freqsList, templateFile):
         data = {}
@@ -137,16 +104,3 @@ class WaveformManager(object):
         self.makeWaveform(freqsList, templateFile)
         self.changeAmplitude(1, self.getAmplitudes(0))
         self.changePhases(1, self.getPhases(0))
-
-    def fileMonitor(self, stream):
-        path = os.path.dirname(os.path.abspath(self.waveformFile))
-        event_handler = EventHandler(stream, self)
-        observer = Observer()
-        observer.schedule(event_handler, path)
-        observer.start()
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            observer.stop()
-        observer.join()

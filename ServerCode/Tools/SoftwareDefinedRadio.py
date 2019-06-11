@@ -12,15 +12,16 @@ def streamWaveform(streamer, wave, metadata):
 
 class SoftwareDefinedRadio(object):
 
-        def __init__(self, waveMan):
-            self.waveMan = waveMan
+        def __init__(self, waveMonitor):
+            self.waveMonitor = waveMonitor
 
         def initializeSDR(self):
-            jsonData = self.waveMan.getJsonData()
+            jsonData = self.waveMonitor.getJsonData()
             rate = jsonData['Rate']
             gain = jsonData['Gain']
             centerFreq = jsonData['CenterFreq']
             channels = jsonData['Channels']
+            # type=x300,addr=192.168.30.2,second_addr=192.168.40.2
             usrp = uhd.usrp.MultiUSRP('')
 
             for chan in channels:
@@ -34,13 +35,13 @@ class SoftwareDefinedRadio(object):
             self.metadata = lib.types.tx_metadata()
 
         def startStreamingWaveform(self):
-            wave = self.waveMan.generateOutputWaveform()
+            wave = self.waveMonitor.getOutputWaveform()
             self.stream = threading.Thread(target=streamWaveform, args=(self.streamer, wave, self.metadata))
             self.stream.start()
 
         def startMonitor(self):
-            waveMan.fileMonitor(self.stream)
+            self.waveMonitor.startMonitor(self.stream)
 
         def updateWaveform(self):
-            (self.stream).wave = self.waveMan.generateOutputWaveform()
+            (self.stream).wave = self.waveMonitor.getOutputWaveform()
             self.stream.isAlive()
