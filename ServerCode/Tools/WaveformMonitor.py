@@ -18,7 +18,8 @@ class EventHandler(FileSystemEventHandler):
 
     def on_any_event(self, event):
         if self.waveMonitor.isChanged():
-            self.streamingThread.wave = self.waveMonitor.generateOutputWaveform()
+            print "wavemonitor says the file is changed"
+            self.streamingThread.wave = self.waveMonitor.getOutputWaveform()
 
 
 class WaveformMonitor(object):
