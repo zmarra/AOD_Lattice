@@ -11,15 +11,13 @@ waveforms = {
 
 
 class EventHandler(FileSystemEventHandler):
-    def __init__(self, streamingThread, waveMonitor):
+    def __init__(self, waveMonitor):
         super(EventHandler, self).__init__()
-        self.streamingThread = streamingThread
         self.waveMonitor = waveMonitor
 
     def on_any_event(self, event):
-        if self.waveMonitor.isChanged():
-            print "wavemonitor says the file is changed"
-            self.streamingThread.wave = self.waveMonitor.getOutputWaveform()
+
+        print "wavemonitor says the file is changed"
 
 
 class WaveformMonitor(object):
@@ -36,9 +34,9 @@ class WaveformMonitor(object):
         self.initializeWaveforms()
         self.modTime = os.stat(self.waveformFile).st_mtime
 
-    def startMonitor(self, stream):
+    def startMonitor(self):
         path = os.path.dirname(os.path.abspath(self.waveformFile))
-        event_handler = EventHandler(stream, self)
+        event_handler = EventHandler(self)
         observer = Observer()
         observer.schedule(event_handler, path)
         observer.start()
