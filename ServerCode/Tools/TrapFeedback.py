@@ -14,9 +14,13 @@ class TrapFeedback(object):
             self.cameraIP = cameraIP
             self.channel = channel
             self.cameraSerial = cameraSerial
-            self.trapNum = len(waveManager.getAmplitudes())
+            self.trapNum = len(waveManager.getAmplitudes(self.channel))
             self.PIDs = []
-            self.waittime = 1
+            self.P = .0005
+            self.I = .00002
+            self.D = .00001
+            self.peakProminence = 200
+            self.waitTime = 1
             self.initializePIDs()
             self.connectCameraServer()
             self.addCamera()
@@ -36,10 +40,11 @@ class TrapFeedback(object):
             self.waveManager.changeAmplitude(self.channel, newAmplitudes)
 
         def initializePIDs(self):
-            for currentAmplitude in self.waveManager.getAmplitudes():
+            currentAmplitudes = self.waveManager.getAmplitudes(self.channel)
+            for i in range(len(currentAmplitudes)):
                 self.PIDs += [PID(self.P, self.I, self.D, setpoint=1000, output_limits=(-10, 0))]
-                self.PIDs.auto_mode = False
-                self.PIDs.set_auto_mode(True, last_output=currentAmplitude)
+                self.PIDs[i].auto_mode = False
+                self.PIDs[i].set_auto_mode(True, last_output=currentAmplitudes[i])
 
         def getImage(self):
             cmd = {
@@ -79,13 +84,18 @@ class TrapFeedback(object):
             return summedFunction[peaks]
 
         def iteratePID(self):
-            self.updateAmplitudes(self.measureIntensities())
-            time.sleep(self.waitTime)
+            t = threading.currentThread()
+            self.running = True
+            while getattr(t, "run", True):
+                self.updateAmplitudes(self.measureIntensities())
+                time.sleep(self.waitTime)
+                if not self.running:
+                    break
 
         def startFeedback(self):
-            self.feedback = threading.Thread(target=self.iteratePID)
+            self.feedback = threading.Thread(target=self.iteratePID, args=[])
             self.feedback.start()
 
         def stopFeedback(self):
-            self.feedback.raise_exception()
+            self.running = False
             self.feedback.join()

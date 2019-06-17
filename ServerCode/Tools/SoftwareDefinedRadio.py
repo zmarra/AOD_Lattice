@@ -43,5 +43,5 @@ class SoftwareDefinedRadio(object):
             self.waveMonitor.startMonitor(self.stream)
 
         def updateWaveform(self):
-            (self.stream).wave = self.waveMonitor.getOutputWaveform()
+            self.stream.wave = self.waveMonitor.getOutputWaveform()
             self.stream.isAlive()

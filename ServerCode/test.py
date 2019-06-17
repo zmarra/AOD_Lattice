@@ -1,4 +1,13 @@
+from Tools.WaveformManager import WaveformManager
 from Tools.WaveformMonitor import WaveformMonitor
+from Tools.TrapFeedback import TrapFeedback
+import time
 
-waveMon = WaveformMonitor('Resources/waveformArguments.json')
-waveMon.startMonitor()
+
+waveManager = WaveformManager("Resources/waveformArguments.json")
+waveMonitor = WaveformMonitor("Resources/waveformArguments.json")
+trapFeedback = TrapFeedback(waveManager, 0, 15102504, "127.0.0.1")
+
+trapFeedback.startFeedback()
+time.sleep(10)
+trapFeedback.stopFeedback()

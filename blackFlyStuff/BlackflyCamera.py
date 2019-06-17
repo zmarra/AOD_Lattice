@@ -158,8 +158,8 @@ class BlackflyCamera(object):
             ncols = PyCapture2.Image.getDataSize(image)/nrows   #finds the number of columns in the image data
             data = numpy.array(image.getData())
             reshapeddata = numpy.reshape(data, (nrows, ncols))
-            baseline = np.median(data)
-            orienteddata = np.flip(reshapeddata.transpose(1, 0), 1)-baseline #subtract median baseline
+            baseline = numpy.median(data)
+            orienteddata = numpy.flip(reshapeddata.transpose(1, 0), 1)-baseline #subtract median baseline
             return (self.error, orienteddata)
         return (1, [])
 
