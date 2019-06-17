@@ -22,15 +22,6 @@ class WaveformManager(object):
         self.initializeWaveforms()
         self.modTime = os.stat(self.waveformFile).st_mtime
 
-    def initializeWaveforms(self):
-        dataSize = int(np.floor(self.jsonData["Rate"] / self.jsonData['waveFreq']))
-        self.allWaves = []
-        for channel in self.jsonData["Channels"]:
-            self.allWaves.append([])
-            for currentWave in self.jsonData['Waves'][channel]:
-                wave = np.array(list(map(lambda n: waveforms['sine'](n, currentWave['freq'], self.jsonData["Rate"]), np.arange(dataSize, dtype=np.complex64))), dtype=np.complex64)
-                (self.allWaves[channel]).append(wave)
-
     def getJsonData(self):
         with open(self.waveformFile) as read_file:
             data = json.load(read_file)
@@ -85,14 +76,6 @@ class WaveformManager(object):
             wave['phase'] = phases[i]
             i += 1
         return True
-
-    def getWaveform(self, channel):
-        wave = self.allWaves[0][0]*0
-        i = 0
-        for currentWave in self.jsonData['Waves'][channel]:
-                wave = np.add(wave, currentWave['amplitude']*self.allWaves[channel][i]*np.exp(currentWave['phase']*np.pi*2j))
-                i += 1
-        return wave
 
     def makeWaveform(self, freqsList, templateFile):
         data = {}

@@ -4,6 +4,7 @@ import os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
+import math
 
 waveforms = {
     "sine": lambda n, tone_offset, rate: np.exp(n * 2j * np.pi * tone_offset / rate)
@@ -11,13 +12,17 @@ waveforms = {
 
 
 class EventHandler(FileSystemEventHandler):
-    def __init__(self, waveMonitor):
+    def __init__(self, streamer, waveMonitor):
         super(EventHandler, self).__init__()
+        self.streamer = streamer
         self.waveMonitor = waveMonitor
 
     def on_any_event(self, event):
-
-        print "wavemonitor says the file is changed"
+        print self.waveMonitor.getTotalPower()
+        if self.waveMonitor.getTotalPower() < 30:
+            self.streamer.wave = self.waveMonitor.getOutputWaveform()
+        else:
+            print "WARNING: TOO MUCH POWER"
 
 
 class WaveformMonitor(object):
@@ -33,6 +38,19 @@ class WaveformMonitor(object):
         self.jsonData = self.getJsonData()
         self.initializeWaveforms()
         self.modTime = os.stat(self.waveformFile).st_mtime
+
+    def getTotalPower(self, channel):
+        # power out of SDR with 4db attenuator and 0 gain with waveforms at 1
+        zeroPower = -20
+        amplifier = 34
+        sumOfWaveforms = 10*math.log10(sum(self.getAmplitudes(channel)))
+        return zeroPower+amplifier+sumOfWaveforms+self.jsonData['Gain']
+
+    def getAmplitudes(self, channel):
+        amplitudes = []
+        for wave in self.jsonData['Waves'][channel]:
+            amplitudes.append(wave['amplitude'])
+        return amplitudes
 
     def startMonitor(self):
         path = os.path.dirname(os.path.abspath(self.waveformFile))

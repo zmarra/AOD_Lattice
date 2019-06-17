@@ -6,6 +6,7 @@ import time
 
 waveManager = WaveformManager("Resources/waveformArguments.json")
 waveMonitor = WaveformMonitor("Resources/waveformArguments.json")
+print waveMonitor.getTotalPower(0)
 trapFeedback = TrapFeedback(waveManager, 0, 15102504, "127.0.0.1")
 
 trapFeedback.startFeedback()

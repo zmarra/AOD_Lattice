@@ -35,9 +35,12 @@ class SoftwareDefinedRadio(object):
             self.metadata = lib.types.tx_metadata()
 
         def startStreamingWaveform(self):
-            wave = self.waveMonitor.getOutputWaveform()
-            self.stream = threading.Thread(target=streamWaveform, args=[self.streamer, wave, self.metadata])
-            self.stream.start()
+            if self.waveMonitor.getTotalPower() < 30:
+                wave = self.waveMonitor.getOutputWaveform()
+                self.stream = threading.Thread(target=streamWaveform, args=[self.streamer, wave, self.metadata])
+                self.stream.start()
+            else:
+                print "WARNING: TOO MUCH POWER"
 
         def startMonitor(self):
             self.waveMonitor.startMonitor(self.stream)
