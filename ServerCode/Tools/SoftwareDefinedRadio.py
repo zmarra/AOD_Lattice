@@ -36,7 +36,7 @@ class SoftwareDefinedRadio(object):
 
         def startStreamingWaveform(self):
             wave = self.waveMonitor.getOutputWaveform()
-            self.stream = threading.Thread(target=streamWaveform, args=(self.streamer, wave, self.metadata))
+            self.stream = threading.Thread(target=streamWaveform, args=[self.streamer, wave, self.metadata])
             self.stream.start()
 
         def startMonitor(self):
