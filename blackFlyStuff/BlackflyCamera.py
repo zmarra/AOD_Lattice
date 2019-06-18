@@ -31,7 +31,7 @@ class BlackflyCamera(object):
 
         # default parameters
         self.parameters = {
-            'serial': 15102504,
+            'serial': 14353502,
             'triggerDelay': 0,
             'exposureTime': 1
         }
@@ -54,7 +54,7 @@ class BlackflyCamera(object):
         # connects the software camera object to a physical camera
         self.camera_instance.connect(self.bus.getCameraFromSerialNumber(self.parameters['serial']))
 
-        timeToSleep = 1000   # time that the computer sleeps between image acquisitions, in ms
+        timeToSleep = 10   # time that the computer sleeps between image acquisitions, in ms
         timeToWait = 1000
 
         # Powers on the Camera
@@ -80,7 +80,7 @@ class BlackflyCamera(object):
             exit()
 
         # Enables resending of lost packets, to avoid "Image Consistency Error"
-        self.camera_instance.setGigEConfig(enablePacketResend=True, registerTimeoutRetries=3)
+        self.camera_instance.setGigEConfig(enablePacketResend=True, registerTimeoutRetries=0)
 
         # Configures trigger mode for hardware triggering
         self.configureTriggerMode()
@@ -209,15 +209,15 @@ class BlackflyCamera(object):
     def configureTriggerMode(self):
         print 'configuring trigger mode'
         trigger_mode = self.camera_instance.getTriggerMode()
-        trigger_mode.onOff = True
-        trigger_mode.mode = 1
+        trigger_mode.onOff = False
+        trigger_mode.mode = 0
         trigger_mode.polarity = 1
         trigger_mode.source = 0        # Using an external hardware trigger
         self.camera_instance.setTriggerMode(trigger_mode)
 
     def configureTriggerDelay(self):
         # Sets the trigger delay
-        triggDelay = 0      # trigger delay in ms
+        triggDelay = 10      # trigger delay in ms
         print 'configuring trigger delay'
         trigger_delay = self.camera_instance.getTriggerDelay()
         trigger_delay.absControl = True
@@ -233,7 +233,7 @@ class BlackflyCamera(object):
         self.camera_instance.setTriggerDelay(trigger_delay)
 
     def configureShutter(self):
-        exposureTime = 5
+        exposureTime = 3
         # Sets the camera exposure time using register writes
         shutter_address = 0x81C
         # "shutter" variable format:
@@ -259,5 +259,5 @@ class BlackflyCamera(object):
         shutter = int(shutter_bin, 2)
         self.camera_instance.writeRegister(shutter_address, shutter)
 
-        settings = {"offsetX": 0, "offsetY": 0, "width": 200, "height": 200, "pixelFormat": PyCapture2.PIXEL_FORMAT.MONO8}
+        settings = {"offsetX": 0, "offsetY": 0, "width": 808, "height": 608, "pixelFormat": PyCapture2.PIXEL_FORMAT.MONO8}
         self.camera_instance.setGigEImageSettings(**settings)

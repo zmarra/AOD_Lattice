@@ -32,7 +32,7 @@ def getImage(cameraSerial, socket):
     return np.array(resp["image"])
 
 
-def addCamera():
+def addCamera(cameraSerial, socket):
     cmd = {
         'action': 'ADD_CAMERA',
         'serial': cameraSerial
@@ -58,23 +58,24 @@ socket = context.socket(zmq.REQ)
 socket.setsockopt(zmq.RCVTIMEO, 5000)
 addr = "{}://{}:{}".format("tcp", "10.140.178.187", 55555)
 socket.connect(addr)
-cameraSerial = 15102504
-rotation = 45
-left = 90
-right = 338
-top = 100
-bottom = 110
-grayimg = getImage(cameraSerial, socket)
-grayimg = ndimage.rotate(grayimg, rotation)
-plt.imshow(grayimg)
-plt.show()
-# summedFunction = np.sum(grayimg, axis=0)
-# x = range(right-left)
-# plt.clf()
-# peaks, properties = find_peaks(summedFunction, prominence=(200, None))
-# print len(peaks)
-# plt.plot(x, summedFunction)
-# plt.plot(peaks, summedFunction[peaks], "x")
-# plt.ylim(0, 2000)
-# plt.pause(.05)
+cameraSerial = 14353509
+addCamera(cameraSerial, socket)
+rotation = 40
+left = 354
+right = 627
+top = 360
+bottom = 370
+while True:
+    grayimg = getImage(cameraSerial, socket)
+    grayimg = ndimage.rotate(grayimg, rotation)
+    grayimg = grayimg[left:right, top:bottom]
+
+    summedFunction = np.sum(grayimg, axis=1)
+    plt.clf()
+    peaks, properties = find_peaks(summedFunction, prominence=(200, None))
+    print len(peaks)
+    plt.plot(summedFunction)
+    plt.plot(peaks, summedFunction[peaks], "x")
+    plt.ylim(0, 2000)
+    plt.pause(.05)
 # plt.show()

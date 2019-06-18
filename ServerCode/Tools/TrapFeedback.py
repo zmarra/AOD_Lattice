@@ -5,6 +5,7 @@ import time
 from scipy.signal import find_peaks
 import threading
 import zmq
+from scipy import ndimage
 
 
 class TrapFeedback(object):

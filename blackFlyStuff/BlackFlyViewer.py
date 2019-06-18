@@ -4,6 +4,7 @@ import time
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg
 import numpy as np
+from scipy import ndimage
 
 app = QtGui.QApplication([])
 win = pg.GraphicsLayoutWidget()
@@ -20,7 +21,7 @@ addr = "{}://{}:{}".format("tcp", "10.140.178.187", 55555)
 print addr
 socket.connect(addr)
 
-cameraSerial = 15102504 # Rubidium's Pointgrey
+cameraSerial = 14353509 # Rubidium's Pointgrey
 
 cmd = {
     'action': 'ADD_CAMERA',
@@ -41,10 +42,15 @@ print resp
 print "status: " + str(resp["status"])
 print "server message: " + resp["message"]
 
-imageNum = 0
-interval = 1
-percentile = 99.5
+time.sleep(1)
 
+imageNum = 0
+interval = 100
+percentile = 99.5
+left = 354
+right = 627
+top = 360
+bottom = 370
 
 def updateData():
 
@@ -59,8 +65,12 @@ def updateData():
         print "status: " + str(resp["status"])
         print "server message: " + resp["message"]
         image = np.array(resp["image"])
+        rotation = 40
+        grayimg = ndimage.rotate(image, rotation)
 
-        img.setImage(image)
+        grayimg = grayimg[left:right, top:bottom]
+        print grayimg.shape
+        img.setImage(grayimg)
 
         latency = int(1000 * (time.time() - starttime))
         print "latency: " + str(latency)

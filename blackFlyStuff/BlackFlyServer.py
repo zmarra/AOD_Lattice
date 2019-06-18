@@ -189,7 +189,7 @@ class BlackflyServer(object):
                 msg = self.socket.recv_json()
                 self.logger.info(msg)
                 self.parse_msg(msg)
-                self.check_cameras()
+                # self.check_cameras()
             except zmq.ZMQError as e:
                 if e.errno != zmq.EAGAIN:
                     self.logger.exception(err_msg)
