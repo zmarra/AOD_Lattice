@@ -23,7 +23,6 @@ class TrapFeedback(object):
             self.waitTime = 1
             self.initializePIDs()
             self.connectCameraServer()
-            self.addCamera()
 
         def connectCameraServer(self):
             context = zmq.Context()

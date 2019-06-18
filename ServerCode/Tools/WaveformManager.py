@@ -61,7 +61,7 @@ class WaveformManager(object):
             phases.append(wave['phase'])
         return phases
 
-    def changeAmplitude(self, channel, amplitudes):
+    def changeAmplitudes(self, channel, amplitudes):
         i = 0
         for wave in self.jsonData['Waves'][channel]:
             wave['amplitude'] = amplitudes[i]
@@ -92,5 +92,5 @@ class WaveformManager(object):
         freqsList = [freqs, freqs]
         print freqsList
         self.makeWaveform(freqsList, templateFile)
-        self.changeAmplitude(1, self.getAmplitudes(0))
+        self.changeAmplitudes(1, self.getAmplitudes(0))
         self.changePhases(1, self.getPhases(0))
