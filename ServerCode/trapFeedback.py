@@ -6,6 +6,7 @@ import time
 from scipy.signal import find_peaks
 import argparse
 import zmq
+from scipy import ndimage
 
 
 def parse_args():
@@ -76,11 +77,16 @@ socket.setsockopt(zmq.RCVTIMEO, 5000)
 addr = "{}://{}:{}".format("tcp", "10.140.178.187", 55555)
 socket.connect(addr)
 
-cameraSerial = 15102504
+cameraSerial = 14353509
 
 args = parse_args()
 trapNum = int(args.traps)
 pids = []
+rotation = 40
+left = 354
+right = 627
+top = 360
+bottom = 370
 with open(args.waveformFile) as read_file:
     data = json.load(read_file)
 read_file.close()
@@ -92,6 +98,8 @@ for i in range(trapNum):
 
 while True:
     grayimg = getImage(cameraSerial, socket)
+    grayimg = ndimage.rotate(grayimg, rotation)
+    grayimg = grayimg[left:right, top:bottom]
     summedFunction = np.sum(grayimg, axis=0)
     peaks, properties = find_peaks(summedFunction, prominence=(args.peakProminence, None))
     amplitudes = summedFunction[peaks]
