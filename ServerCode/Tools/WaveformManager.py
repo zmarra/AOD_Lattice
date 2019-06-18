@@ -13,13 +13,11 @@ class WaveformManager(object):
     def __init__(self, waveformFile):
         self.waveformFile = waveformFile
         self.jsonData = self.getJsonData()
-        self.initializeWaveforms()
         self.modTime = os.stat(self.waveformFile).st_mtime
 
     def changeFile(self, file):
         self.waveformFile = file
         self.jsonData = self.getJsonData()
-        self.initializeWaveforms()
         self.modTime = os.stat(self.waveformFile).st_mtime
 
     def getJsonData(self):
