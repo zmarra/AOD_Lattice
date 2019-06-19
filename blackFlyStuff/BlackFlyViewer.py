@@ -23,24 +23,24 @@ socket.connect(addr)
 
 cameraSerial = 14353509 # Rubidium's Pointgrey
 
-cmd = {
-    'action': 'ADD_CAMERA',
-    'serial': cameraSerial
-}
-socket.send(json.dumps(cmd))
-resp = json.loads(socket.recv())
-print "status: " + str(resp["status"])
-print "server message: " + resp["message"]
-
-cmd = {
-    'action': 'START',
-    'serial': cameraSerial
-}
-socket.send(json.dumps(cmd))
-resp = json.loads(socket.recv())
-print resp
-print "status: " + str(resp["status"])
-print "server message: " + resp["message"]
+# cmd = {
+#     'action': 'ADD_CAMERA',
+#     'serial': cameraSerial
+# }
+# socket.send(json.dumps(cmd))
+# resp = json.loads(socket.recv())
+# print "status: " + str(resp["status"])
+# print "server message: " + resp["message"]
+#
+# cmd = {
+#     'action': 'START',
+#     'serial': cameraSerial
+# }
+# socket.send(json.dumps(cmd))
+# resp = json.loads(socket.recv())
+# print resp
+# print "status: " + str(resp["status"])
+# print "server message: " + resp["message"]
 
 time.sleep(1)
 
@@ -48,9 +48,9 @@ imageNum = 0
 interval = 100
 percentile = 99.5
 left = 354
-right = 627
-top = 360
-bottom = 370
+right = 680
+top = 300
+bottom = 660
 
 def updateData():
 

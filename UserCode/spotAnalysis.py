@@ -59,17 +59,21 @@ socket.setsockopt(zmq.RCVTIMEO, 5000)
 addr = "{}://{}:{}".format("tcp", "10.140.178.187", 55555)
 socket.connect(addr)
 cameraSerial = 14353509
-addCamera(cameraSerial, socket)
+# addCamera(cameraSerial, socket)
 rotation = 40
-left = 354
-right = 627
-top = 360
-bottom = 370
+left = 370
+right = 380
+top = 300
+bottom = 660
+# left = 354
+# right = 627
+# top = 360
+# bottom = 370
 while True:
     grayimg = getImage(cameraSerial, socket)
     grayimg = ndimage.rotate(grayimg, rotation)
     grayimg = grayimg[left:right, top:bottom]
-
+    grayimg = np.transpose(grayimg)
     summedFunction = np.sum(grayimg, axis=1)
     plt.clf()
     peaks, properties = find_peaks(summedFunction, prominence=(200, None))
