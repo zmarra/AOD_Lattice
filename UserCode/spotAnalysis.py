@@ -4,7 +4,7 @@ import json
 from scipy.signal import find_peaks
 import zmq
 from scipy import ndimage
-
+import time
 
 def parse_args():
     """Parse the command line arguments"""
@@ -58,26 +58,29 @@ addr = "{}://{}:{}".format("tcp", "10.140.178.187", 55555)
 socket.connect(addr)
 cameraSerial = 14353509
 # addCamera(cameraSerial, socket)
-rotation = 40
-left = 370
-right = 380
-top = 300
-bottom = 660
+
+rotation = 43
+left = 147
+right = 490
+# [(147, 164), (448, 443)]
+top = 250
+bottom = 260
 # left = 354
 # right = 627
 # top = 360
 # bottom = 370
 while True:
     grayimg = getImage(cameraSerial, socket)
+    grayimg = grayimg[100:520, 130:541]
     grayimg = ndimage.rotate(grayimg, rotation)
     grayimg = grayimg[left:right, top:bottom]
     grayimg = np.transpose(grayimg)
-    summedFunction = np.sum(grayimg, axis=1)
+    summedFunction = np.sum(grayimg, axis=0)
     plt.clf()
     peaks, properties = find_peaks(summedFunction, prominence=(200, None))
     print len(peaks)
     plt.plot(summedFunction)
     plt.plot(peaks, summedFunction[peaks], "x")
     plt.ylim(0, 2000)
-    plt.pause(.05)
+    plt.pause(.5)
 # plt.show()

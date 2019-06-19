@@ -16,8 +16,8 @@ def addCamera(cameraSerial, socket):
     resp = json.loads(socket.recv())
     print "status: " + str(resp["status"])
     print "server message: " + resp["message"]
-    status = 1
-    while status == 1:
+
+    if resp["status"] == 0:
         cmd = {
             'action': 'START',
             'serial': cameraSerial
@@ -26,7 +26,6 @@ def addCamera(cameraSerial, socket):
         resp = json.loads(socket.recv())
         print resp
         print "status: " + str(resp["status"])
-        status = resp["status"]
         print "server message: " + resp["message"]
 
 
@@ -34,7 +33,7 @@ def addCameraWithArea(cameraSerial, socket):
     cmd = {
         'action': 'ADD_CAMERA',
         'serial': cameraSerial,
-        'area': [(0, 0), (808, 608)]
+        'area': [(40, 430), (90, 480)]
     }
     socket.send(json.dumps(cmd))
     resp = json.loads(socket.recv())
@@ -68,12 +67,8 @@ addr = "{}://{}:{}".format("tcp", "10.140.178.187", 55555)
 print addr
 socket.connect(addr)
 
-cameraSerial = 14353502 # Rubidium's Pointgrey
-
+cameraSerial = 14353502
 addCameraWithArea(cameraSerial, socket)
-
-time.sleep(1)
-
 imageNum = 0
 interval = 100
 percentile = 99.5

@@ -5,11 +5,14 @@ import numpy as np
 
 class BlackFlyClient(object):
 
-    def __init__(self, cameraSerial, serverIP):
+    def __init__(self, cameraSerial, serverIP, area=None):
         self.serverIP = serverIP
         self.cameraSerial = cameraSerial
         self.connectCameraServer()
-        self.addCamera()
+        if area is None:
+            self.addCamera()
+        else:
+            self.addCameraWithArea(area)
 
     def connectCameraServer(self):
         context = zmq.Context()
@@ -27,8 +30,7 @@ class BlackFlyClient(object):
         resp = json.loads(self.socket.recv())
         print "status: " + str(resp["status"])
         print "server message: " + resp["message"]
-        status = 1
-        while status == 1:
+        if resp["status"] == 0:
             cmd = {
                 'action': 'START',
                 'serial': self.cameraSerial
@@ -37,7 +39,6 @@ class BlackFlyClient(object):
             resp = json.loads(self.socket.recv())
             print resp
             print "status: " + str(resp["status"])
-            status = resp["status"]
             print "server message: " + resp["message"]
 
     def addCameraWithArea(self, area):
@@ -50,18 +51,16 @@ class BlackFlyClient(object):
         resp = json.loads(self.socket.recv())
         print "status: " + str(resp["status"])
         print "server message: " + resp["message"]
-        status = 1
-        while status == 1:
-                cmd = {
-                    'action': 'START',
-                    'serial': self.cameraSerial
-                }
-                self.socket.send(json.dumps(cmd))
-                resp = json.loads(self.socket.recv())
-                print resp
-                print "status: " + str(resp["status"])
-                status = resp["status"]
-                print "server message: " + resp["message"]
+        if resp["status"] == 0:
+            cmd = {
+                'action': 'START',
+                'serial': self.cameraSerial
+            }
+            self.socket.send(json.dumps(cmd))
+            resp = json.loads(self.socket.recv())
+            print resp
+            print "status: " + str(resp["status"])
+            print "server message: " + resp["message"]
 
     def getImage(self):
         cmd = {

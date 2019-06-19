@@ -163,7 +163,7 @@ class BlackflyCamera(object):
             reshapeddata = numpy.reshape(data, (nrows, ncols))
             baseline = numpy.median(data)
             orienteddata = numpy.flip(reshapeddata.transpose(1, 0), 1) #subtract median baseline
-            return (self.error, orienteddata)
+            return (self.error, reshapeddata)
         return (1, [])
 
     def get_data(self):
@@ -236,7 +236,7 @@ class BlackflyCamera(object):
         self.camera_instance.setTriggerDelay(trigger_delay)
 
     def configureShutter(self):
-        exposureTime = 3
+        exposureTime = 1
         # Sets the camera exposure time using register writes
         shutter_address = 0x81C
         # "shutter" variable format:
@@ -264,5 +264,11 @@ class BlackflyCamera(object):
 
     def configureCaptureArea(self):
         settings = {"offsetX": self.area[0][0], "offsetY": self.area[0][1], "width": (self.area[1][0]-self.area[0][0]), "height": (self.area[1][1]-self.area[0][1]), "pixelFormat": PyCapture2.PIXEL_FORMAT.MONO8}
+        # settings['height'] = int(self.area[1][1]-self.area[0][1])
+        # settings['offsetX'] = int(self.area[0][0])
+        # settings['offsetY'] = int(self.area[0][1])
+        # settings['width'] =
+        # settings = {"offsetX": offsetX, "offsetY": offsetY, "width": width, "height": height, "pixelFormat": PyCapture2.PIXEL_FORMAT.MONO8}
+        # settings = {"offsetX": self.area[0][0], "offsetY": self.area[0][1], "width": 100, "height": 100, "pixelFormat": PyCapture2.PIXEL_FORMAT.MONO8}
         print settings
         self.camera_instance.setGigEImageSettings(**settings)
