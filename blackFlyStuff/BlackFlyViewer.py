@@ -6,6 +6,53 @@ import pyqtgraph as pg
 import numpy as np
 from scipy import ndimage
 
+
+def addCamera(cameraSerial, socket):
+    cmd = {
+        'action': 'ADD_CAMERA',
+        'serial': cameraSerial
+    }
+    socket.send(json.dumps(cmd))
+    resp = json.loads(socket.recv())
+    print "status: " + str(resp["status"])
+    print "server message: " + resp["message"]
+    status = 1
+    while status == 1:
+        cmd = {
+            'action': 'START',
+            'serial': cameraSerial
+        }
+        socket.send(json.dumps(cmd))
+        resp = json.loads(socket.recv())
+        print resp
+        print "status: " + str(resp["status"])
+        status = resp["status"]
+        print "server message: " + resp["message"]
+
+
+def addCameraWithArea(cameraSerial, socket):
+    cmd = {
+        'action': 'ADD_CAMERA',
+        'serial': cameraSerial,
+        'area': [(0, 0), (808, 608)]
+    }
+    socket.send(json.dumps(cmd))
+    resp = json.loads(socket.recv())
+    print "status: " + str(resp["status"])
+    print "server message: " + resp["message"]
+    status = 1
+    while status == 1:
+            cmd = {
+                'action': 'START',
+                'serial': cameraSerial
+            }
+            socket.send(json.dumps(cmd))
+            resp = json.loads(socket.recv())
+            print resp
+            print "status: " + str(resp["status"])
+            status = resp["status"]
+            print "server message: " + resp["message"]
+
 app = QtGui.QApplication([])
 win = pg.GraphicsLayoutWidget()
 win.show()  ## show widget alone in its own window
@@ -21,36 +68,15 @@ addr = "{}://{}:{}".format("tcp", "10.140.178.187", 55555)
 print addr
 socket.connect(addr)
 
-cameraSerial = 14353509 # Rubidium's Pointgrey
+cameraSerial = 14353502 # Rubidium's Pointgrey
 
-# cmd = {
-#     'action': 'ADD_CAMERA',
-#     'serial': cameraSerial
-# }
-# socket.send(json.dumps(cmd))
-# resp = json.loads(socket.recv())
-# print "status: " + str(resp["status"])
-# print "server message: " + resp["message"]
-#
-# cmd = {
-#     'action': 'START',
-#     'serial': cameraSerial
-# }
-# socket.send(json.dumps(cmd))
-# resp = json.loads(socket.recv())
-# print resp
-# print "status: " + str(resp["status"])
-# print "server message: " + resp["message"]
+addCameraWithArea(cameraSerial, socket)
 
 time.sleep(1)
 
 imageNum = 0
 interval = 100
 percentile = 99.5
-left = 354
-right = 680
-top = 300
-bottom = 660
 
 def updateData():
 
@@ -65,10 +91,8 @@ def updateData():
         print "status: " + str(resp["status"])
         print "server message: " + resp["message"]
         image = np.array(resp["image"])
-        rotation = 40
+        rotation = 0
         grayimg = ndimage.rotate(image, rotation)
-
-        grayimg = grayimg[left:right, top:bottom]
         print grayimg.shape
         img.setImage(grayimg)
 

@@ -83,10 +83,9 @@ args = parse_args()
 trapNum = int(args.traps)
 pids = []
 rotation = 40
-left = 354
-right = 627
-top = 360
-bottom = 370
+camArea = [(109, 106), (193, 192)]
+cropArea = [(109, 106), (193, 192)]
+
 with open(args.waveformFile) as read_file:
     data = json.load(read_file)
 read_file.close()
@@ -99,7 +98,8 @@ for i in range(trapNum):
 while True:
     grayimg = getImage(cameraSerial, socket)
     grayimg = ndimage.rotate(grayimg, rotation)
-    grayimg = grayimg[left:right, top:bottom]
+    grayimg = grayimg[cropArea[0][0]:cropArea[1][0], cropArea[0][1]:cropArea[1][1]]
+    grayimg = np.transpose(grayimg)
     summedFunction = np.sum(grayimg, axis=0)
     peaks, properties = find_peaks(summedFunction, prominence=(args.peakProminence, None))
     amplitudes = summedFunction[peaks]

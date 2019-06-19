@@ -14,8 +14,6 @@ def parse_args():
     parser.add_argument("-P", "--P", default=.00005, type=float)
     parser.add_argument("-I", "--I", default=0.00002, type=float)
     parser.add_argument("-D", "--D", default=0.000001, type=float)
-    parser.add_argument("-f", "--waveformFile", default='Resources/waveformArguments.json', type=str)
-    parser.add_argument("-c", "--cameraImageURL", default="http://10.141.230.220/html/cam_pic.php", type=str)
     parser.add_argument("-p", "--peakProminence", default=400, type=int)
     return parser.parse_args()
 

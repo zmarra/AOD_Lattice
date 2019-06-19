@@ -75,6 +75,9 @@ class BlackflyServer(object):
             if not (camera_info is None) and not (serial in self.cameras):
                 # serial number is required
                 parameters = {'serial': serial}
+                if 'area' in msg:
+                    parameters['area'] = msg['area']
+                print parameters
                 self.cameras[serial] = BlackflyCamera(parameters)
                 try:
                     self.cameras[serial].initialize()

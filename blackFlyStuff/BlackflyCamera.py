@@ -28,7 +28,7 @@ class BlackflyCamera(object):
         self.status = 'STOPPED'
         # creates an array to hold camera data for one image
         # self.data.append(numpy.zeros(self.cam_resolution, dtype=float))
-
+        self.area = [(0, 0), (808, 608)]
         # default parameters
         self.parameters = {
             'serial': 14353502,
@@ -38,6 +38,8 @@ class BlackflyCamera(object):
 
         for key in parameters:
             self.parameters[key] = parameters[key]
+            if key == 'area':
+                self.area = parameters['area']
 
         self.imageNum = 0
 
@@ -80,12 +82,13 @@ class BlackflyCamera(object):
             exit()
 
         # Enables resending of lost packets, to avoid "Image Consistency Error"
-        self.camera_instance.setGigEConfig(enablePacketResend=True, registerTimeoutRetries=0)
+        self.camera_instance.setGigEConfig(enablePacketResend=True, registerTimeoutRetries=3)
 
         # Configures trigger mode for hardware triggering
         self.configureTriggerMode()
         self.configureTriggerDelay()
         self.configureShutter()
+        self.configureCaptureArea()
 
         # Instructs the camera to retrieve only the newest image from the buffer each time the RetrieveBuffer() function is called.
         # Older images will be dropped.
@@ -159,7 +162,7 @@ class BlackflyCamera(object):
             data = numpy.array(image.getData())
             reshapeddata = numpy.reshape(data, (nrows, ncols))
             baseline = numpy.median(data)
-            orienteddata = numpy.flip(reshapeddata.transpose(1, 0), 1)-baseline #subtract median baseline
+            orienteddata = numpy.flip(reshapeddata.transpose(1, 0), 1) #subtract median baseline
             return (self.error, orienteddata)
         return (1, [])
 
@@ -259,5 +262,7 @@ class BlackflyCamera(object):
         shutter = int(shutter_bin, 2)
         self.camera_instance.writeRegister(shutter_address, shutter)
 
-        settings = {"offsetX": 0, "offsetY": 0, "width": 808, "height": 608, "pixelFormat": PyCapture2.PIXEL_FORMAT.MONO8}
+    def configureCaptureArea(self):
+        settings = {"offsetX": self.area[0][0], "offsetY": self.area[0][1], "width": (self.area[1][0]-self.area[0][0]), "height": (self.area[1][1]-self.area[0][1]), "pixelFormat": PyCapture2.PIXEL_FORMAT.MONO8}
+        print settings
         self.camera_instance.setGigEImageSettings(**settings)
