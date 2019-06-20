@@ -75,6 +75,7 @@ class BlackflyServer(object):
             if not (camera_info is None) and not (serial in self.cameras):
                 # serial number is required
                 parameters = {'serial': serial}
+
                 if 'area' in msg:
                     parameters['area'] = msg['area']
                 print parameters
@@ -155,10 +156,10 @@ class BlackflyServer(object):
         try:
             print results
             self.socket.send_json({
-            'camera_data': results,
-            'status': status,
-            'message': resp
-        })
+                'camera_data': results,
+                'status': status,
+                'message': resp
+                })
         except:
             print "send_json failed."
 

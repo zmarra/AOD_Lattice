@@ -4,18 +4,6 @@ import json
 from scipy.signal import find_peaks
 import zmq
 from scipy import ndimage
-import time
-
-def parse_args():
-    """Parse the command line arguments"""
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-w", "--window", default=(98, 100, 324, 110), type=tuple)
-    parser.add_argument("-t", "--traps", default=1, type=int)
-    parser.add_argument("-P", "--P", default=.00005, type=float)
-    parser.add_argument("-I", "--I", default=0.00002, type=float)
-    parser.add_argument("-D", "--D", default=0.000001, type=float)
-    parser.add_argument("-p", "--peakProminence", default=400, type=int)
-    return parser.parse_args()
 
 
 def getImage(cameraSerial, socket):
@@ -27,7 +15,7 @@ def getImage(cameraSerial, socket):
     resp = json.loads(socket.recv())
     print "status: " + str(resp["status"])
     print "server message: " + resp["message"]
-    return np.array(resp["image"])
+    return np.array(resp["image"]), resp["status"]
 
 
 def addCamera(cameraSerial, socket):
@@ -56,31 +44,61 @@ socket = context.socket(zmq.REQ)
 socket.setsockopt(zmq.RCVTIMEO, 5000)
 addr = "{}://{}:{}".format("tcp", "10.140.178.187", 55555)
 socket.connect(addr)
-cameraSerial = 14353509
-# addCamera(cameraSerial, socket)
+cameraSerial = 14353502
+addCamera(cameraSerial, socket)
 
 rotation = 43
-left = 147
-right = 490
-# [(147, 164), (448, 443)]
-top = 250
-bottom = 260
-# left = 354
-# right = 627
-# top = 360
-# bottom = 370
+
+left = 312
+right = 612
+top = 218
+bottom = 522
+
+cutSizeX = 10
+cutSizeY = 20
+
+# leftx = int((left+right)/2)
+# rightx = leftx+cutSizeX
+#
+# lefty = int((left+right)/2)
+# righty = leftx+cutSizeX
+grid = plt.GridSpec(2, 2, wspace=0.4, hspace=0.3)
+fig = plt.figure()
+
 while True:
-    grayimg = getImage(cameraSerial, socket)
-    grayimg = grayimg[100:520, 130:541]
-    grayimg = ndimage.rotate(grayimg, rotation)
-    grayimg = grayimg[left:right, top:bottom]
-    grayimg = np.transpose(grayimg)
-    summedFunction = np.sum(grayimg, axis=0)
-    plt.clf()
-    peaks, properties = find_peaks(summedFunction, prominence=(200, None))
-    print len(peaks)
-    plt.plot(summedFunction)
-    plt.plot(peaks, summedFunction[peaks], "x")
-    plt.ylim(0, 2000)
-    plt.pause(.5)
+    grayimg, status = getImage(cameraSerial, socket)
+    if status == 0:
+        plt.clf()
+        grayimg = ndimage.rotate(grayimg, rotation)
+        grayimg = grayimg[left:right, top:bottom]
+        cutx = fig.add_subplot(grid[0, 0])
+        cuty = fig.add_subplot(grid[1, 0])
+        image = fig.add_subplot(grid[:, 1])
+        image.imshow(grayimg)
+        dim = grayimg.shape
+        print dim
+        x0 = int(dim[0]/2)
+        x1 = int(dim[0]/2)+cutSizeX
+        y0 = int(dim[1]/2)
+        y1 = int(dim[1]/2)+cutSizeY
+        image.axvline(x0, color='r')
+        image.axvline(x1, color='r')
+        image.axhline(y0, color='r')
+        image.axhline(y1, color='r')
+        summedFunctionx = np.sum(grayimg[:][y0:y1], axis=0)
+        summedFunctiony = np.sum(grayimg[x0:x1][:], axis=0)
+        print len(summedFunctiony)
+
+        peaksx, properties = find_peaks(summedFunctionx, prominence=(200, None))
+        peaksy, properties = find_peaks(summedFunctiony, prominence=(200, None))
+
+        print "number of x peaks = " + str(len(peaksx))
+        print "number of y peaks = " + str(len(peaksy))
+        cutx.plot(summedFunctionx)
+        cutx.plot(peaksx, summedFunctionx[peaksx], "x")
+        cuty.plot(summedFunctiony)
+        cuty.plot(peaksy, summedFunctiony[peaksy], "x")
+        cutx.set_ylim([0, 2000])
+        cuty.set_ylim([0, 2000])
+        plt.pause(.5)
 # plt.show()

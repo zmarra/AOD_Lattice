@@ -28,7 +28,7 @@ class BlackflyCamera(object):
         self.status = 'STOPPED'
         # creates an array to hold camera data for one image
         # self.data.append(numpy.zeros(self.cam_resolution, dtype=float))
-        self.area = [(0, 0), (808, 608)]
+        self.area = [(4, 104), (600, 600)]
         # default parameters
         self.parameters = {
             'serial': 14353502,
@@ -236,7 +236,7 @@ class BlackflyCamera(object):
         self.camera_instance.setTriggerDelay(trigger_delay)
 
     def configureShutter(self):
-        exposureTime = 1
+        exposureTime = .1
         # Sets the camera exposure time using register writes
         shutter_address = 0x81C
         # "shutter" variable format:

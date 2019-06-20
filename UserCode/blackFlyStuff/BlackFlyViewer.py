@@ -33,7 +33,7 @@ def addCameraWithArea(cameraSerial, socket):
     cmd = {
         'action': 'ADD_CAMERA',
         'serial': cameraSerial,
-        'area': [(40, 430), (90, 480)]
+        'area': [[104, 4], [704, 604]]
     }
     socket.send(json.dumps(cmd))
     resp = json.loads(socket.recv())
@@ -52,6 +52,7 @@ def addCameraWithArea(cameraSerial, socket):
             status = resp["status"]
             print "server message: " + resp["message"]
 
+
 app = QtGui.QApplication([])
 win = pg.GraphicsLayoutWidget()
 win.show()  ## show widget alone in its own window
@@ -67,11 +68,12 @@ addr = "{}://{}:{}".format("tcp", "10.140.178.187", 55555)
 print addr
 socket.connect(addr)
 
-cameraSerial = 14353502
+cameraSerial = 14353509
 addCameraWithArea(cameraSerial, socket)
 imageNum = 0
 interval = 100
 percentile = 99.5
+
 
 def updateData():
 

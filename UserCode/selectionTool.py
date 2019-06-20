@@ -27,7 +27,7 @@ def click_and_crop(event, x, y, flags, param):
 
 rotation = 43
 serverIP = "10.140.178.187"
-cameraSerial = 14353502
+cameraSerial = 14353509
 camera = BlackFlyClient(cameraSerial, serverIP)
 image = np.true_divide(camera.getImage(), 255)
 image = ndimage.rotate(image, rotation)

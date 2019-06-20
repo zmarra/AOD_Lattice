@@ -59,12 +59,9 @@ if len(refPt) == 2:
     for i in range(2):
         for j in range(2):
             roiPts[i][j] = roundup(refPt[i][j])
-
-    widHei = max(roiPts[1][1]-roiPts[0][1], roiPts[1][0]-roiPts[0][0])
-
-    roi1 = clone[roiPts[0][1]:(roiPts[0][1]+widHei), roiPts[0][0]:(roiPts[0][0]+widHei)]
+    roi1 = clone[roiPts[0][1]:roiPts[1][1], roiPts[0][0]:roiPts[1][0]]
     print "Cropping parameters for initial image"
-    print [(roiPts[0][1], roiPts[0][1]+widHei), roiPts[0][0], (roiPts[0][0]+widHei)]
+    print roiPts
     roi1 = grayimg = ndimage.rotate(roi1, rotation)
     clone = roi1.copy()
     cv2.imshow("ROI1", roi1)
