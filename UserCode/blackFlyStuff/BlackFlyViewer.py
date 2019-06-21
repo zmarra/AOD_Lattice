@@ -69,7 +69,7 @@ print addr
 socket.connect(addr)
 
 cameraSerial = 14353509
-addCameraWithArea(cameraSerial, socket)
+# addCameraWithArea(cameraSerial, socket)
 imageNum = 0
 interval = 100
 percentile = 99.5

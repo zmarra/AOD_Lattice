@@ -236,7 +236,7 @@ class BlackflyCamera(object):
         self.camera_instance.setTriggerDelay(trigger_delay)
 
     def configureShutter(self):
-        exposureTime = .1
+        exposureTime = .01
         # Sets the camera exposure time using register writes
         shutter_address = 0x81C
         # "shutter" variable format:
