@@ -50,6 +50,7 @@ def getTotalPower(data, channel):
     sumOfWaveforms = 0
     for i in range(len(data["Waves"][channel])):
         sumOfWaveforms += data["Waves"][channel][i]["amplitude"]
+        print sumOfWaveforms
     return zeroPower+amplifier+10*math.log10(sumOfWaveforms)+data['Gain']
 
 
@@ -58,6 +59,7 @@ args = parse_args()
 with open(args.waveformFile) as read_file:
     data = json.load(read_file)
 read_file.close()
+print getTotalPower(data, args.channel)
 
 serverIP = args.serverIP
 cameraSerial = args.cameraSerial
